@@ -1,4 +1,4 @@
-const getGitHubUser = async (accessToken) => {
+export const getGitHubUser = async (accessToken) => {
   const response = await fetch('https://api.github.com/user', {
     headers: {
       Authorization: `token ${accessToken}`,
@@ -8,7 +8,7 @@ const getGitHubUser = async (accessToken) => {
   return data;
 };
 
-const getRepos = async (accessToken) => {
+export const getRepos = async (accessToken) => {
   const response = await fetch('https://api.github.com/user/repos', {
     headers: {
       Authorization: `token ${accessToken}`,
@@ -18,7 +18,7 @@ const getRepos = async (accessToken) => {
   return data;
 };
 
-const getStarredRepos = async (accessToken) => {
+export const getStarredRepos = async (accessToken) => {
   const response = await fetch('https://api.github.com/user/starred', {
     headers: {
       Authorization: `token ${accessToken}`,

@@ -1,32 +1,9 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
 import RepoCard from '../components/RepoCard';
 import { SvgUri } from 'react-native-svg';
-
-async function getToken() {
-  return await SecureStore.getItemAsync('token');
-}
-
-const getGitHubUser = async (accessToken) => {
-  const response = await fetch('https://api.github.com/user', {
-    headers: {
-      Authorization: `token ${accessToken}`,
-    },
-  });
-  const data = await response.json();
-  return data;
-};
-
-const getRepos = async (accessToken) => {
-  const response = await fetch('https://api.github.com/user/repos', {
-    headers: {
-      Authorization: `token ${accessToken}`,
-    },
-  });
-  const data = await response.json();
-  return data;
-};
+import { getValue } from '../utils/storage';
+import { getGitHubUser, getRepos } from '../services/github_api';
 
 export default function HomeScreen() {
   const [name, setName] = useState('');
@@ -35,7 +12,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     async function fetchData() {
-      const token = await getToken();
+      const token = await getValue('token');
       const user = await getGitHubUser(token);
       const repos = await getRepos(token);
       setName(user.name);

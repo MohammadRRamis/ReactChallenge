@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import * as SecureStore from 'expo-secure-store';
+import { save } from '../utils/storage';
 
 const discovery = {
   authorizationEndpoint: 'https://github.com/login/oauth/authorize',
@@ -14,15 +14,11 @@ const discovery = {
 const CLIENT_ID = '97d9231faebbf300d8f7';
 const SECRET_KEY = '71daae2f80942fdf1d47b66316a1e52f9c7a0e37';
 
-async function save(key, value) {
-  await SecureStore.setItemAsync(key, value);
-}
-
 export default function Login() {
   const navigation = useNavigation();
-  const [response, promptAsync] = useAuthRequest(
+  const [request, response, promptAsync] = useAuthRequest(
     {
-      clientId: '97d9231faebbf300d8f7',
+      clientId: CLIENT_ID,
       scopes: ['identity'],
       redirectUri: makeRedirectUri({
         scheme: 'your.app',
@@ -41,8 +37,8 @@ export default function Login() {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          client_id: '97d9231faebbf300d8f7',
-          client_secret: '71daae2f80942fdf1d47b66316a1e52f9c7a0e37',
+          client_id: CLIENT_ID,
+          client_secret: SECRET_KEY,
           code: code,
         }),
       }
@@ -55,12 +51,12 @@ export default function Login() {
   useEffect(() => {
     if (response?.type === 'success') {
       const { code } = response.params;
-      const process = async () => {
+      const auth = async () => {
         const token = await getAccessToken(code);
         console.log(token);
         await save('token', token);
       };
-      process();
+      auth();
       navigation.replace('HomeScreen');
     }
   }, [response, navigation]);

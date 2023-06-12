@@ -1,28 +1,15 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
 import RepoCard from '../components/RepoCard';
-
-async function getToken() {
-  return await SecureStore.getItemAsync('token');
-}
-
-const getStarredRepos = async (accessToken) => {
-  const response = await fetch('https://api.github.com/user/starred', {
-    headers: {
-      Authorization: `token ${accessToken}`,
-    },
-  });
-  const data = await response.json();
-  return data;
-};
+import { getValue } from '../utils/storage';
+import { getStarredRepos } from '../services/github_api';
 
 export default function StarredScreen() {
   const [starredRepos, setStarredRepos] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
-      const token = await getToken();
+      const token = await getValue('token');
       const starredRepos = await getStarredRepos(token);
       setStarredRepos(starredRepos);
     }
