@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import * as SecureStore from 'expo-secure-store';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const discovery = {
   authorizationEndpoint: 'https://github.com/login/oauth/authorize',
@@ -11,16 +11,10 @@ const discovery = {
   revocationEndpoint:
     'https://github.com/settings/connections/applications/97d9231faebbf300d8f7',
 };
-const CLIENT_ID = '97d9231faebbf300d8f7';
-const SECRET_KEY = '71daae2f80942fdf1d47b66316a1e52f9c7a0e37';
-
-async function save(key, value) {
-  await SecureStore.setItemAsync(key, value);
-}
 
 export default function Login() {
   const navigation = useNavigation();
-  const [response, promptAsync] = useAuthRequest(
+  const [request, response, promptAsync] = useAuthRequest(
     {
       clientId: '97d9231faebbf300d8f7',
       scopes: ['identity'],
@@ -48,8 +42,18 @@ export default function Login() {
       }
     );
     const data = await response.json();
-
+    console.log(data);
     return data.access_token;
+  };
+
+  const getGitHubUser = async (accessToken) => {
+    const response = await fetch('https://api.github.com/user/starred', {
+      headers: {
+        Authorization: `token ${accessToken}`,
+      },
+    });
+    const data = await response.json();
+    return data;
   };
 
   useEffect(() => {
@@ -57,10 +61,11 @@ export default function Login() {
       const { code } = response.params;
       const process = async () => {
         const token = await getAccessToken(code);
-        console.log(token);
-        await save('token', token);
+        const user = await getGitHubUser(token);
+        console.log(user);
       };
       process();
+      //   const user = getGitHubUser(token);
       navigation.replace('HomeScreen');
     }
   }, [response, navigation]);
