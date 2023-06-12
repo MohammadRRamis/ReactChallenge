@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import RepoCard from '../components/RepoCard';
 import { SvgUri } from 'react-native-svg';
 import { getValue } from '../utils/storage';
-import { getGitHubUser, getRepos } from '../services/github_api';
 
 export default function HomeScreen() {
   const [name, setName] = useState('');
@@ -13,8 +12,12 @@ export default function HomeScreen() {
   useEffect(() => {
     async function fetchData() {
       const token = await getValue('token');
-      const user = await getGitHubUser(token);
-      const repos = await getRepos(token);
+      const user = await fetch(
+        `https://getuser-v2q6nspraa-uc.a.run.app?token=${token}`
+      );
+      const repos = await fetch(
+        `https://getrepos-v2q6nspraa-uc.a.run.app?token=${token}`
+      );
       setName(user.name);
       setRepos(repos);
       setContributions('https://ghchart.rshah.org/' + user.login);
