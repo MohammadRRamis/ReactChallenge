@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import RepoCard from '../components/RepoCard';
 import { SvgUri } from 'react-native-svg';
 import { getValue } from '../utils/storage';
+import axios from 'axios';
 
 export default function HomeScreen() {
   const [name, setName] = useState('');
@@ -12,15 +13,31 @@ export default function HomeScreen() {
   useEffect(() => {
     async function fetchData() {
       const token = await getValue('token');
-      const user = await fetch(
-        `https://getuser-v2q6nspraa-uc.a.run.app?token=${token}`
-      );
-      const repos = await fetch(
-        `https://getrepos-v2q6nspraa-uc.a.run.app?token=${token}`
-      );
-      setName(user.name);
-      setRepos(repos);
-      setContributions('https://ghchart.rshah.org/' + user.login);
+      try {
+        const userResponse = await axios.get(
+          `https://getuser-v2q6nspraa-uc.a.run.app`,
+          {
+            params: {
+              token: token,
+            },
+          }
+        );
+        const reposResponse = await axios.get(
+          `https://getrepos-v2q6nspraa-uc.a.run.app`,
+          {
+            params: {
+              token: token,
+            },
+          }
+        );
+        setName(userResponse.data.name);
+        setContributions(
+          'https://ghchart.rshah.org/' + userResponse.data.login
+        );
+        setRepos(reposResponse.data);
+      } catch (error) {
+        console.error(error);
+      }
     }
     fetchData();
   }, []);

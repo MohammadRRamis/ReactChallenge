@@ -4,7 +4,6 @@ import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { save } from '../utils/storage';
-
 const discovery = {
   authorizationEndpoint: 'https://github.com/login/oauth/authorize',
   tokenEndpoint: 'https://github.com/login/oauth/access_token',
@@ -53,11 +52,10 @@ export default function Login() {
       const { code } = response.params;
       const auth = async () => {
         const token = await getAccessToken(code);
-        console.log(token);
         await save('token', token);
+        await navigation.replace('HomeScreen');
       };
       auth();
-      navigation.replace('HomeScreen');
     }
   }, [response, navigation]);
 
