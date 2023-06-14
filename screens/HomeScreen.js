@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import RepoCard from '../components/RepoCard';
 import { SvgUri } from 'react-native-svg';
@@ -7,6 +7,7 @@ import { getGitHubUser } from '../services/github_api';
 import { getRepos } from '../services/github_api';
 
 export default function HomeScreen() {
+  const [avatar, setAvatar] = useState('');
   const [name, setName] = useState('');
   const [repos, setRepos] = useState([]);
   const [contributions, setContributions] = useState('');
@@ -18,6 +19,7 @@ export default function HomeScreen() {
         const userResponse = await getGitHubUser(token);
         const reposResponse = await getRepos(token);
 
+        setAvatar(userResponse.avatar_url);
         setName(userResponse.name);
         setContributions('https://ghchart.rshah.org/' + userResponse.login);
         setRepos(reposResponse);
@@ -29,19 +31,36 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to GitHub Explorer</Text>
-      <Text style={styles.subtitle}>GitHub username: {name}</Text>
-      <View>
-        <SvgUri width='350' uri={contributions} />
-      </View>
-      <Text style={styles.subtitle}>Repos:</Text>
-      <ScrollView style={styles}>
+    <ScrollView>
+      <View style={styles.container}>
+        <View
+          style={{
+            width: 200,
+            height: 200,
+            borderRadius: 200 / 2,
+            overflow: 'hidden',
+            borderWidth: 3,
+            borderColor: 'transparent',
+          }}
+        >
+          <Image source={{ uri: avatar }} style={{ width: 200, height: 200 }} />
+        </View>
+        <Text style={styles.title}>{name}</Text>
+        <View style={{ marginBottom: 32 }}>
+          <SvgUri width='350' uri={contributions} />
+        </View>
+
         {repos.map((repo) => (
-          <RepoCard key={repo.id} name={repo.name} owner={repo.owner.login} />
+          <RepoCard
+            key={repo.id}
+            name={repo.name}
+            s
+            owner={repo.owner.login}
+            repoUrl={repo.html_url}
+          />
         ))}
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -51,16 +70,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f5f5f5',
+    marginTop: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 8,
   },
 });

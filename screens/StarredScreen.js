@@ -21,14 +21,19 @@ export default function StarredScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.subtitle}>Starred Repos:</Text>
-      <ScrollView style={styles}>
+    <ScrollView>
+      <View style={styles.container}>
+        <Text style={styles.title}>Starred Repositories</Text>
         {starredRepos.map((repo) => (
-          <RepoCard key={repo.id} name={repo.name} owner={repo.owner.login} />
+          <RepoCard
+            key={repo.id}
+            name={repo.name}
+            owner={repo.owner.login}
+            repoUrl={repo.html_url}
+          />
         ))}
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -38,11 +43,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f5f5f5',
+    marginTop: 20,
   },
-  subtitle: {
-    fontSize: 18,
+  title: {
+    fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 8,
+    marginBottom: 32,
   },
 });
