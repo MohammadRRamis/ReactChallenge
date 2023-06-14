@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import RepoCard from '../components/RepoCard';
 import { getValue } from '../utils/storage';
-import axios from 'axios';
+import { getStarredRepos } from '../services/github_api';
 
 export default function StarredScreen() {
   const [starredRepos, setStarredRepos] = useState([]);
@@ -11,15 +11,8 @@ export default function StarredScreen() {
     async function fetchData() {
       const token = await getValue('token');
       try {
-        const starredRepos = await axios.get(
-          `https://getstarredrepos-v2q6nspraa-uc.a.run.app`,
-          {
-            params: {
-              token: token,
-            },
-          }
-        );
-        setStarredRepos(starredRepos.data);
+        const starredRepos = await getStarredRepos(token);
+        setStarredRepos(starredRepos);
       } catch (error) {
         console.error(error);
       }

@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import RepoCard from '../components/RepoCard';
 import { SvgUri } from 'react-native-svg';
 import { getValue } from '../utils/storage';
-import axios from 'axios';
+import { getGitHubUser } from '../services/github_api';
+import { getRepos } from '../services/github_api';
 
 export default function HomeScreen() {
   const [name, setName] = useState('');
@@ -14,27 +15,12 @@ export default function HomeScreen() {
     async function fetchData() {
       const token = await getValue('token');
       try {
-        const userResponse = await axios.get(
-          `https://getuser-v2q6nspraa-uc.a.run.app`,
-          {
-            params: {
-              token: token,
-            },
-          }
-        );
-        const reposResponse = await axios.get(
-          `https://getrepos-v2q6nspraa-uc.a.run.app`,
-          {
-            params: {
-              token: token,
-            },
-          }
-        );
-        setName(userResponse.data.name);
-        setContributions(
-          'https://ghchart.rshah.org/' + userResponse.data.login
-        );
-        setRepos(reposResponse.data);
+        const userResponse = await getGitHubUser(token);
+        const reposResponse = await getRepos(token);
+
+        setName(userResponse.name);
+        setContributions('https://ghchart.rshah.org/' + userResponse.login);
+        setRepos(reposResponse);
       } catch (error) {
         console.error(error);
       }
